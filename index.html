@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FitOn Revive prototype</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="side">
+  <div class="brand"><b>FitOn · Revive</b><span>Mobile prototype</span></div>
+  <input id="q" type="search" placeholder="Search screens…" autocomplete="off">
+  <nav id="list"></nav>
+  <div class="help">Tap buttons, tabs, chips and checkboxes to interact. Tap an empty area to see what's clickable. Arrow keys step through a flow.</div>
+</aside>
+<main id="main">
+  <header id="bar">
+    <button id="menubtn" aria-label="Screens">☰</button>
+    <button id="backbtn" aria-label="Back">‹</button>
+    <div class="t"><div id="title"></div><div id="crumb"></div></div>
+    <button id="hotbtn" title="Show clickable areas">◎</button>
+    <button id="prev" aria-label="Previous screen in flow">←</button><span id="pos"></span><button id="next" aria-label="Next screen in flow">→</button>
+  </header>
+  <div id="stage">
+    <div id="phonewrap">
+      <div id="phone">
+        <div id="screen"></div>
+        <div id="fixed"></div>
+        <div id="more"></div>
+        <div id="hot"></div>
+        <div id="toast"></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

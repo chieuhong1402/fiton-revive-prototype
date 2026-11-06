@@ -1,0 +1,17 @@
+<svg width="109" height="149" viewBox="0 0 109 149" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_fg_9789_14801)">
+<path d="M52.2415 28.3529L48.3065 54.6477L29.8431 54.1373C26.8501 54.0545 24.2542 56.191 23.7597 59.144L20.9833 75.7228C20.4458 78.9328 22.5655 81.9861 25.761 82.6045L43.7012 86.0763L39.22 114.508C38.7675 117.379 40.4377 120.161 43.1841 121.112L61.7981 127.556C65.3718 128.793 69.1849 126.455 69.7041 122.709L73.9644 91.9691L109.018 98.6141C112.462 99.2671 115.73 96.8408 116.101 93.3549L119.332 63.0406C119.702 59.5704 117.043 56.518 113.555 56.4078L78.5697 55.3025L82.1683 27.6736C82.6768 23.7694 79.3506 20.4418 75.4462 20.9486L57.403 23.2909C54.745 23.6359 52.6382 25.7021 52.2415 28.3529Z" fill="#6DD5CE"/>
+</g>
+<defs>
+<filter id="filter0_fg_9789_14801" x="2.47955e-05" y="-0.00156212" width="140.266" height="148.792" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="10.45" result="effect1_foregroundBlur_9789_14801"/>
+<feTurbulence type="fractalNoise" baseFrequency="0.99900001287460327 0.99900001287460327" numOctaves="3" seed="7066" />
+<feDisplacementMap in="effect1_foregroundBlur_9789_14801" scale="8" xChannelSelector="R" yChannelSelector="G" result="displacedImage" width="100%" height="100%" />
+<feMerge result="effect2_texture_9789_14801">
+<feMergeNode in="displacedImage"/>
+</feMerge>
+</filter>
+</defs>
+</svg>

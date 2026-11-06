@@ -1,0 +1,25 @@
+<svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#filter0_dd_8484_34754)">
+<circle cx="23" cy="22" r="20" fill="#F47253"/>
+<circle cx="23" cy="22" r="19" stroke="white" stroke-width="2"/>
+</g>
+<path d="M16.999 30C17.8227 27.6696 20.0452 26 22.6576 26C25.27 26 27.4925 27.6696 28.3162 30" stroke="#1E2020" stroke-width="2" stroke-linecap="round"/>
+<path d="M14.001 14L19.501 17L14.001 19.5" stroke="#1E2020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M32.1992 14L26.6992 17L32.1992 19.5" stroke="#1E2020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<defs>
+<filter id="filter0_dd_8484_34754" x="0" y="0" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1"/>
+<feGaussianBlur stdDeviation="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_8484_34754"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1"/>
+<feGaussianBlur stdDeviation="1.5"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="effect1_dropShadow_8484_34754" result="effect2_dropShadow_8484_34754"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_8484_34754" result="shape"/>
+</filter>
+</defs>
+</svg>
