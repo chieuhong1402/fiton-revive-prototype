@@ -131,6 +131,8 @@
     if (n.rx) el._rx = n.rx;
     if (n.inp) decorateInput(el, n);
     if (n.alt) setupToggle(el, n, ctx);
+    if (n.gate) { el._gate = n.gate; el._gctx = ctx; el._gnode = n; el.classList.add('gated'); }
+    if (n.act) el.dataset.act = n.act;
     return el;
   }
   function renderText(n) {
@@ -195,6 +197,17 @@
       for (let i = 0; i < 5 && g; i++, g = g.parentElement) { const peers = [...g.querySelectorAll('.tg')].filter(x => x !== el && x.dataset.cs === cs); if (peers.length) { peers.filter(p => p.dataset.tg === '1').forEach(flipToggle); break; } }
     }
     flipToggle(el);
+    updateGates();
+  }
+  function updateGates() {
+    const any = document.querySelector('#screen .tg[data-tg="1"], #fixed .tg[data-tg="1"]');
+    if (!any) return;
+    document.querySelectorAll('#screen .gated, #fixed .gated').forEach(g => { const n = g._gnode; const on = render(Object.assign({}, g._gate, { x: n.x, y: n.y, abs: n.abs, sh: n.sh, sv: n.sv, st: n.st, gr: n.gr }), g._gctx); ['position', 'left', 'top', 'bottom'].forEach(k => { if (g.style[k]) on.style[k] = g.style[k]; }); on.classList.add('ungated'); g.replaceWith(on); });
+  }
+  function exitFlow() {
+    const m = screenMeta(state.cur); const flow = m ? IDX.flows[m.flow] : [];
+    while (state.hist.length) { const p = state.hist.pop(); if (p === 'more' || !flow.includes(p)) { state.skipPush = true; if (p === 'more') showMore(); else location.hash = '#s' + p.replace(':', '-'); return; } }
+    state.skipPush = true; location.hash = '#s' + IDX.home.replace(':', '-');
   }
 
   // --- navigation
@@ -219,6 +232,8 @@
   function handleClick(e) {
     const scr = $('#screen'); let el = e.target;
     const path = []; while (el && el !== scr) { path.push(el); el = el.parentElement; }
+    // 0. explicit actions and disabled (gated) buttons
+    for (const x of path) { if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
     // 1. Figma prototype links
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
@@ -292,7 +307,8 @@
     if (!rootEl.style.backgroundColor && !rootEl.style.background) rootEl.style.backgroundColor = '#fff';
     rootEl.style.minHeight = PHONE_H + 'px'; if (H < PHONE_H) rootEl.style.height = PHONE_H + 'px';
     scr.appendChild(rootEl);
-    if (H > PHONE_H + 4 && !/static/.test(location.search)) pinBars(rootEl, root);
+    if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
+    else if (H > PHONE_H + 4 && !/static/.test(location.search)) pinBars(rootEl, root);
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
     $('#prev').disabled = i <= 0; $('#next').disabled = i >= flow.length - 1;
@@ -320,6 +336,14 @@
         else if (k.y + k.h >= root.h - 2 && (BOT_RE.test(k.nm || k.cs || '') || (/Button/.test(k.nm || '') && k.h < 140))) moveFixed(el, k, root);
       });
     }
+  }
+  function fitScreen(rootEl, root) {
+    // one-screen layout: keep the header on top, pin bottom bars/CTAs above the bottom edge, no scrolling
+    const kids = root.ch || []; const els = [...rootEl.children];
+    kids.forEach((k, i) => { const el = els[i]; if (!el) return;
+      if (k.y < 2 && TOP_RE.test(k.nm || k.cs || '')) moveFixed(el, k, root, true);
+      else if (k.y + k.h >= root.h - 140 && (BOT_RE.test(k.nm || k.cs || '') || k.cs === 'Button')) moveFixed(el, k, root); });
+    rootEl.style.height = PHONE_H + 'px'; rootEl.style.minHeight = PHONE_H + 'px';
   }
   function moveFixed(el, k, root, top) {
     const layer = $('#fixed'); el.style.position = 'absolute'; el.style.left = k.x + 'px';

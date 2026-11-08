@@ -57,3 +57,7 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 #screen .sel,#fixed .sel{background:#e9f6f6 !important;box-shadow:inset 0 0 0 1.5px #2a7a82 !important}
 #screen .unsel,#fixed .unsel{background:#fff !important;box-shadow:inset 0 0 0 1px #e1e6e6 !important}
 #screen .unsel .tx span{color:#1e2020 !important}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .25s ease 2}
+.gated{cursor:not-allowed}
