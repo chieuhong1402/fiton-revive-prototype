@@ -330,7 +330,7 @@
     scr.appendChild(rootEl);
     if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
-    else if (H > PHONE_H + 4 && !/static/.test(location.search)) pinBars(rootEl, root);
+    else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
@@ -365,6 +365,36 @@
   function retitle(rootEl, t) {
     const tx = [...rootEl.querySelectorAll('.tx')].find(x => x.getBoundingClientRect && x._text && x._text === x._text.toUpperCase() && /[A-Z]{3}/.test(x._text) && x.closest('[data-cs^="TopBar"]'));
     if (tx) { const sp = tx.querySelector('span'); if (sp) { sp.textContent = t; [...tx.querySelectorAll('span')].slice(1).forEach(x => x.remove()); } }
+  }
+  // a scrolling screen must be able to reveal its last content above the pinned bottom bars (CTA / tab bar)
+  function padBottom(rootEl, id) {
+    if (state.cur !== id || !rootEl.isConnected) return;
+    const rr = rootEl.getBoundingClientRect(); const z = rr.height / rootEl.offsetHeight || 1;  // phone may be scaled
+    const bars = [...$('#fixed').children].filter(e => e.style.top === 'auto' && e.offsetHeight < 300);  // tall ones are sheets, not bars
+    if (!bars.length) return;
+    const fr = $('#fixed').getBoundingClientRect();
+    const cover = Math.max(...bars.map(e => (fr.bottom - e.getBoundingClientRect().top) / z));
+    const h0 = rootEl._h0 || (rootEl._h0 = rootEl.offsetHeight);
+    let bottom = 0;
+    const visit = el => {
+      if (el.style && el.style.position === 'sticky') return;
+      const cs = getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+      const kids = el.children;
+      const boxed = kids.length && (parseFloat(cs.borderBottomWidth) > 0 || (cs.boxShadow !== 'none' && /inset/.test(cs.boxShadow)));
+      if (boxed) mark(el);  // card outlines count as content too
+      if (!kids.length || el.classList.contains('tx') || el.tagName === 'IMG') { mark(el); return; }
+      for (const k of kids) visit(k);
+    };
+    const mark = el => {
+      {
+        const r = el.getBoundingClientRect(); if (r.width < 1 || r.height < 1) return;
+        let b = r.bottom; for (let a = el.parentElement; a && a !== rootEl; a = a.parentElement) { if (getComputedStyle(a).overflowY !== 'visible') b = Math.min(b, a.getBoundingClientRect().bottom); }
+        if (b > r.top && (b - rr.top) / z <= h0 + 120) bottom = Math.max(bottom, (b - rr.top) / z);  // content ending inside (or just past) the Figma frame must clear the bars
+      }
+    };
+    for (const k of rootEl.children) { const r = k.getBoundingClientRect(); if (r.top - rr.top < 2 && r.height / z >= rootEl.offsetHeight - 2 && !k.children.length) continue; visit(k); }
+    const need = Math.ceil(bottom + cover + 24);
+    if (need > rootEl.offsetHeight) { rootEl.style.height = need + 'px'; rootEl.style.minHeight = need + 'px'; }
   }
   function fitScreen(rootEl, root) {
     // one-screen layout: keep the header on top, pin bottom bars/CTAs above the bottom edge, no scrolling
