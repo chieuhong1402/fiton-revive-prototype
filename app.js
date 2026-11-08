@@ -318,6 +318,7 @@
     if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) pinBars(rootEl, root);
+    bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
     $('#prev').disabled = i <= 0; $('#next').disabled = i >= flow.length - 1;
@@ -358,6 +359,24 @@
       if (k.y < 2 && TOP_RE.test(k.nm || k.cs || '')) moveFixed(el, k, root, true);
       else if (k.y + k.h >= root.h - 140 && (BOT_RE.test(k.nm || k.cs || '') || k.cs === 'Button')) moveFixed(el, k, root); });
     rootEl.style.height = PHONE_H + 'px'; rootEl.style.minHeight = PHONE_H + 'px';
+  }
+  // carousels run to the right edge of the phone so the next card peeks instead of being clipped by page padding
+  function bleedRight() {
+    const ph = $('#phone'); const pr = ph.getBoundingClientRect(); const sc = pr.width / PHONE_W || 1;
+    document.querySelectorAll('#screen .hscroll, #fixed .hscroll').forEach(h => {
+      if (h.scrollWidth <= h.clientWidth + 2 || h.parentElement.closest('.hscroll')) return;
+      const r = h.getBoundingClientRect(); const d = Math.round((pr.right - r.right) / sc);
+      if (d < 1 || d > 48) return;
+      const cs = getComputedStyle(h);
+      h.style.marginRight = (parseFloat(cs.marginRight) || 0) - d + 'px';
+      h.style.paddingRight = (parseFloat(cs.paddingRight) || 0) + d + 'px';
+      if (h.style.width && h.style.width !== 'auto') h.style.width = parseFloat(h.style.width) + d + 'px';
+      if (h.style.maxWidth && h.style.maxWidth !== 'none') h.style.maxWidth = 'none';
+      // let it escape ancestors that only clip because of their own padding
+      for (let a = h.parentElement; a && a.id !== 'screen' && a.id !== 'fixed'; a = a.parentElement) {
+        const ac = getComputedStyle(a); if (ac.overflowX !== 'visible' && !a.classList.contains('hscroll')) { if ((pr.right - a.getBoundingClientRect().right) / sc > 0.5) a.style.overflowX = 'visible', a.style.overflow = 'visible'; }
+      }
+    });
   }
   function markTop(el, k) {
     el.classList.add('pin-top');
