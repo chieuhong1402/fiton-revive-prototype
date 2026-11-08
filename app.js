@@ -246,7 +246,7 @@
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
         if (a.b || a.cl) { back(); return; }
-        if (a.d && screenMeta(a.d)) { go(a.d); return; }
+        if (a.d && screenMeta(a.d)) { if (a.t) (state.titles = state.titles || {})[a.d] = a.t; go(a.d); return; }
         if (a.u) { window.open(a.u, '_blank'); return; }
       }
     }
@@ -315,6 +315,7 @@
     if (!rootEl.style.backgroundColor && !rootEl.style.background) rootEl.style.backgroundColor = '#fff';
     rootEl.style.minHeight = PHONE_H + 'px'; if (H < PHONE_H) rootEl.style.height = PHONE_H + 'px';
     scr.appendChild(rootEl);
+    if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) pinBars(rootEl, root);
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
@@ -344,6 +345,11 @@
         else if (k.y + k.h >= root.h - 2 && (BOT_RE.test(k.nm || k.cs || '') || (/Button/.test(k.nm || '') && k.h < 140))) moveFixed(el, k, root);
       });
     }
+  }
+  // swap the header title (e.g. a category screen reused for every category)
+  function retitle(rootEl, t) {
+    const tx = [...rootEl.querySelectorAll('.tx')].find(x => x.getBoundingClientRect && x._text && x._text === x._text.toUpperCase() && /[A-Z]{3}/.test(x._text) && x.closest('[data-cs^="TopBar"]'));
+    if (tx) { const sp = tx.querySelector('span'); if (sp) { sp.textContent = t; [...tx.querySelectorAll('span')].slice(1).forEach(x => x.remove()); } }
   }
   function fitScreen(rootEl, root) {
     // one-screen layout: keep the header on top, pin bottom bars/CTAs above the bottom edge, no scrolling
