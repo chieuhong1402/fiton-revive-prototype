@@ -106,7 +106,7 @@
           const p = n.p.slice(); const flow = (n.ch || []).filter(c => !c.abs); const gaps = (n.g || 0) * Math.max(0, flow.length - 1);
           const H = n.lm === 'H';
           const mainSum = flow.reduce((s, c) => s + (H ? c.w : c.h), 0) + gaps, crossMax = flow.reduce((m, c) => Math.max(m, H ? c.h : c.w), 0);
-          const fitAxis = (a, b, size, content) => { if (p[a] + p[b] > size - content + 0.5) { const av = Math.max(0, size - content); const tot = p[a] + p[b] || 1; const ka = p[a] / tot; p[a] = av * ka; p[b] = av * (1 - ka); } };
+          const fitAxis = (a, b, size, content) => { if (p[a] + p[b] > size + 0.5) { const av = Math.max(0, size - content); const tot = p[a] + p[b] || 1; const ka = p[a] / tot; p[a] = av * ka; p[b] = av * (1 - ka); } };
           fitAxis(3, 1, n.w, H ? mainSum : crossMax); fitAxis(0, 2, n.h, H ? crossMax : mainSum);
           st.padding = p.map(v => Math.round(v * 2) / 2 + 'px').join(' ');
         }
@@ -115,15 +115,15 @@
         const childExtent = (n.ch || []).filter(c => !c.abs).reduce((s, c) => s + c.w, 0) + (n.g || 0) * Math.max(0, (n.ch || []).length - 1) + (n.p ? n.p[1] + n.p[3] : 0);
         if (n.lm === 'H' && !n.wr && (n.ov === 'H' || n.ov === 'B' || n.w > ctx.pw + 1 || (n.clip && childExtent > n.w + 2))) {
           el.classList.add('hscroll');
-          if (n.w > ctx.pw + 1) { if (!inAL) st.width = Math.max(40, ctx.pw - Math.max(0, n.x)) + 'px'; else { st.width = 'auto'; st.flex = '1 1 auto'; st.minWidth = '0'; st.maxWidth = '100%'; st.alignSelf = 'stretch'; } }
+          if (n.w > ctx.pw + 1 || n.w > ctx.pw - (ctx.pl || 0) - (ctx.pr || 0) + 1) { if (!inAL) st.width = Math.max(40, ctx.pw - Math.max(0, n.x)) + 'px'; else { bleed(st, ctx, n); } }
           st.overflowX = 'auto'; st.overflowY = 'hidden';
         }
         if (n.lm === 'V' && (n.ov === 'V' || n.ov === 'B')) st.overflowY = 'auto';
       }
-      if (n.lm !== 'G') { const cctx = { al: n.lm || null, pw: n.w, ph: n.h };
+      if (n.lm !== 'G') { const cctx = { al: n.lm || null, pw: n.w, ph: n.h, pl: n.p ? n.p[3] : 0, pr: n.p ? n.p[1] : 0 };
       for (const c of n.ch || []) { const ce = render(c, cctx); if (ce) el.appendChild(ce); } }
     }
-    if (n.k === 'f' && !n.lm && inAL && ctx.al === 'V' && n.w > ctx.pw + 1 && (n.ch || []).length) { el.classList.add('hscroll'); st.width = 'auto'; st.alignSelf = 'stretch'; st.overflowX = 'auto'; st.overflowY = 'hidden'; st.flexShrink = '0'; }
+    if (n.k === 'f' && !n.lm && inAL && ctx.al === 'V' && n.w > ctx.pw - (ctx.pl || 0) - (ctx.pr || 0) + 1 && (n.ch || []).length) { el.classList.add('hscroll'); bleed(st, ctx, n); st.overflowX = 'auto'; st.overflowY = 'hidden'; st.flexShrink = '0'; st.height = n.h + 'px'; }
     if (n.lbl) st.filter = `blur(${n.lbl / 2}px)`;
     el.dataset.id = n.id;
     if (n.nm) el.dataset.nm = n.nm;
@@ -134,6 +134,12 @@
     if (n.gate) { el._gate = n.gate; el._gctx = ctx; el._gnode = n; el.classList.add('gated'); }
     if (n.act) el.dataset.act = n.act;
     return el;
+  }
+  // carousels keep their left inset and scroll out to the right screen edge (bleed past the parent's right padding)
+  function bleed(st, ctx, n) {
+    const pr = ctx.al === 'V' ? (ctx.pr || 0) : 0;
+    st.width = 'auto'; st.flex = '0 0 auto'; st.minWidth = '0'; st.maxWidth = 'none'; st.alignSelf = 'stretch';
+    if (pr) { st.marginRight = -pr + 'px'; const own = n.p ? n.p[1] : 0; st.paddingRight = (own + pr) + 'px'; }
   }
   function renderText(n) {
     const el = document.createElement('div'); el.className = 'tx';
@@ -301,7 +307,7 @@
     const meta = screenMeta(id); if (!meta) { go(IDX.home, false); return; }
     state.cur = id; const s = await loadScreen(id); if (state.cur !== id) return;
     const root = s.root; const H = root.h;
-    const scr = $('#screen'); scr.innerHTML = ''; scr.scrollTop = 0; $('#fixed').innerHTML = '';
+    const scr = $('#screen'); scr.innerHTML = ''; scr.scrollTop = 0; $('#phone').classList.remove('scrolled'); $('#fixed').innerHTML = '';
     const rootEl = render(Object.assign({}, root, { abs: 1, x: 0, y: 0 }), { al: null, pw: PHONE_W, ph: H });
     rootEl.style.position = 'relative'; rootEl.style.left = rootEl.style.top = '0';
     if (!rootEl.style.backgroundColor && !rootEl.style.background) rootEl.style.backgroundColor = '#fff';
@@ -324,7 +330,7 @@
     if (root.lm === 'V') {
       // sticky header (first child) & footer (last child)
       const f = kids[0], fe = els[0];
-      if (f && !f.abs && TOP_RE.test(f.nm || f.cs || '')) { fe.style.position = 'sticky'; fe.style.top = '0'; fe.style.zIndex = 5; }
+      if (f && !f.abs && TOP_RE.test(f.nm || f.cs || '')) { fe.style.position = 'sticky'; fe.style.top = '0'; fe.style.zIndex = 5; markTop(fe, f); }
       const flowKids = kids.map((k, i) => [k, els[i]]).filter(([k]) => !k.abs);
       const [l, le] = flowKids[flowKids.length - 1] || [];
       if (l && BOT_RE.test(l.nm || l.cs || '')) { le.style.position = 'sticky'; le.style.bottom = '0'; le.style.zIndex = 5; }
@@ -345,7 +351,9 @@
       else if (k.y + k.h >= root.h - 140 && (BOT_RE.test(k.nm || k.cs || '') || k.cs === 'Button')) moveFixed(el, k, root); });
     rootEl.style.height = PHONE_H + 'px'; rootEl.style.minHeight = PHONE_H + 'px';
   }
+  function markTop(el, k) { el.classList.add('pin-top'); }
   function moveFixed(el, k, root, top) {
+    if (top) markTop(el, k);
     const layer = $('#fixed'); el.style.position = 'absolute'; el.style.left = k.x + 'px';
     if (top) el.style.top = k.y + 'px'; else { el.style.top = 'auto'; el.style.bottom = (root.h - (k.y + k.h)) + 'px'; }
     if (!top) el.style.bottom = Math.max(0, root.h - (k.y + k.h)) + 'px';
@@ -394,7 +402,7 @@
     $('#menubtn').onclick = () => document.body.classList.toggle('menu');
     $('#list').addEventListener('click', e => { if (e.target.tagName === 'A') { state.listScrolled = true; document.body.classList.remove('menu'); const id = e.target.dataset.id; if (state.cur && state.cur !== id) state.hist.push(state.cur); state.skipPush = true; } });
     $('#more').addEventListener('click', e => { const a = e.target.closest('a'); if (a) { state.hist.push('more'); state.skipPush = true; $('#more').classList.remove('on'); } });
-    $('#screen').addEventListener('scroll', () => { if (state.hot) flashHotspots(true); });
+    $('#screen').addEventListener('scroll', () => { if (state.hot) flashHotspots(true); $('#phone').classList.toggle('scrolled', $('#screen').scrollTop > 4); });
     window.addEventListener('hashchange', route);
     document.addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if (e.key === 'ArrowRight') $('#next').click(); if (e.key === 'ArrowLeft') $('#prev').click(); if (e.key === 'Backspace' || e.key === 'Escape') back(); });
     route();
