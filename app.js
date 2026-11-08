@@ -163,6 +163,7 @@
       if (r.tc) s.textTransform = { UPPER: 'uppercase', LOWER: 'lowercase', TITLE: 'capitalize', SMALL_CAPS: 'none', SMALL_CAPS_FORCED: 'none' }[r.tc] || 'none';
       if (r.tc === 'SMALL_CAPS' || r.tc === 'SMALL_CAPS_FORCED') s.fontVariant = 'small-caps';
       if (r.td === 'UNDERLINE') s.textDecoration = 'underline'; if (r.td === 'STRIKETHROUGH') s.textDecoration = 'line-through';
+      if (/^\s*(\+?1[-. ])?\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}\s*$/.test(r.s)) s.whiteSpace = 'nowrap';  // keep phone numbers on one line
       inner.appendChild(sp);
     }
     el._text = n.r.map(r => r.s).join('');
