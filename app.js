@@ -351,6 +351,7 @@
       const flowKids = kids.map((k, i) => [k, els[i]]).filter(([k]) => !k.abs);
       const [l, le] = flowKids[flowKids.length - 1] || [];
       if (l && BOT_RE.test(l.nm || l.cs || '')) { le.style.position = 'sticky'; le.style.bottom = '0'; le.style.zIndex = 5; }
+      if (rootEl.style.overflow === 'hidden' && [...rootEl.children].some(e => e.style.position === 'sticky')) rootEl.style.overflow = 'clip';  // hidden would break sticky bars
       kids.forEach((k, i) => { if (k.abs && BOT_RE.test(k.nm || k.cs || '') && k.y + k.h >= root.h - 2) moveFixed(els[i], k, root); if (k.abs && TOP_RE.test(k.nm || k.cs || '') && k.y < 2) moveFixed(els[i], k, root, true); });
     } else {
       kids.forEach((k, i) => {
