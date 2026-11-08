@@ -135,6 +135,8 @@
     if (n.alt) setupToggle(el, n, ctx);
     if (n.gate) { el._gate = n.gate; el._gctx = ctx; el._gnode = n; el.classList.add('gated'); }
     if (n.act) el.dataset.act = n.act;
+    if (n.pk) { el.dataset.pk = n.pk; el.style.cursor = 'pointer'; }
+    if (n.rt) el._rt = n.rt;
     return el;
   }
   // carousels keep their left inset and scroll out to the right screen edge (bleed past the parent's right padding)
@@ -244,6 +246,13 @@
     const path = []; while (el && el !== scr) { path.push(el); el = el.parentElement; }
     // 0. explicit actions and disabled (gated) buttons
     for (const x of path) { if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'home') { go(IDX.home); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
+    // 0b. single-choice pickers (e.g. pain scale) and buttons that route on the picked value
+    for (const x of path) if (x.dataset && x.dataset.pk) {
+      const grp = [...$('#screen').querySelectorAll('[data-pk]')];
+      grp.forEach(g => { g.classList.toggle('pk-on', g === x); g.classList.toggle('pk-off', g !== x); });
+      (state.picks = state.picks || {})[state.cur] = x.dataset.pk; return;
+    }
+    for (const x of path) if (x._rt) { const v = (state.picks || {})[state.cur] || x._rt._d; const d = x._rt[v]; if (d && screenMeta(d)) { go(d); return; } }
     // 1. Figma prototype links
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
