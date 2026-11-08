@@ -170,7 +170,9 @@
   function decorateInput(el, n) {
     const texts = [...el.querySelectorAll('.tx')]; if (!texts.length) return;
     // pick the text inside the deepest stroked/filled box, else the last text
-    let t = texts.find(x => { let p = x.parentElement; while (p && p !== el) { if (p.style.boxShadow || p.style.backgroundColor) return true; p = p.parentElement; } return false; }) || texts[texts.length - 1];
+    const boxed = x => { let p = x.parentElement; while (p && p !== el) { if (p.style.boxShadow || p.style.backgroundColor) return true; p = p.parentElement; } return false; };
+    // a field with a prefix (country code, currency…) — the value is the text that fills the row
+    let t = texts.find(x => boxed(x) && /^1/.test(x.style.flex || x.style.flexGrow || '')) || texts.find(boxed) || texts[texts.length - 1];
     if (texts.length > 1 && t === texts[0] && texts[0].getBoundingClientRect && /label/i.test(t.parentElement.dataset.nm || '')) t = texts[1];
     const span = t.querySelector('span'); if (!span) return;
     const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'proto-input';
