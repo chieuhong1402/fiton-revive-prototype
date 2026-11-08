@@ -73,7 +73,8 @@
       const pS = H ? n.sh : n.sv, cS = H ? n.sv : n.sh;
       const pDim = H ? 'width' : 'height', cDim = H ? 'height' : 'width';
       const pv = H ? n.w : n.h, cv = H ? n.h : n.w;
-      if ((pS === 'FILL' || n.gr) && ctx.hug) { st.flexShrink = '0'; if (n.k !== 't') st[pDim] = pv + 'px'; }
+      if (ctx.scroll && H) { st.flex = '0 0 auto'; st.width = pv + 'px'; }
+      else if ((pS === 'FILL' || n.gr) && ctx.hug) { st.flexShrink = '0'; if (n.k !== 't') st[pDim] = pv + 'px'; }
       else if (pS === 'FILL' || n.gr) { st.flex = '1 1 0'; st[H ? 'minWidth' : 'minHeight'] = '0'; }
       else if (pS === 'HUG' && n.k !== 's' && n.k !== 'p') { st.flexShrink = '0'; }
       else { st[pDim] = pv + 'px'; st.flexShrink = '0'; }
@@ -121,7 +122,7 @@
         }
         if (n.lm === 'V' && (n.ov === 'V' || n.ov === 'B')) st.overflowY = 'auto';
       }
-      if (n.lm !== 'G') { const cctx = { al: n.lm || null, pw: n.w, ph: n.h, pl: n.p ? n.p[3] : 0, pr: n.p ? n.p[1] : 0, hug: (n.lm === 'V' ? n.sv : n.sh) === 'HUG' };
+      if (n.lm !== 'G') { const cctx = { al: n.lm || null, pw: n.w, ph: n.h, pl: n.p ? n.p[3] : 0, pr: n.p ? n.p[1] : 0, hug: (n.lm === 'V' ? n.sv : n.sh) === 'HUG', scroll: el.classList.contains('hscroll') };
       for (const c of n.ch || []) { const ce = render(c, cctx); if (ce) el.appendChild(ce); } }
     }
     if (n.k === 'f' && !n.lm && inAL && ctx.al === 'V' && n.w > ctx.pw - (ctx.pl || 0) - (ctx.pr || 0) + 1 && (n.ch || []).length) { el.classList.add('hscroll'); bleed(st, ctx, n); st.overflowX = 'auto'; st.overflowY = 'hidden'; st.flexShrink = '0'; st.height = n.h + 'px'; }
