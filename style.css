@@ -68,3 +68,7 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
   background:linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 62%,rgba(255,255,255,0) 100%)}
 .scrolled .pin-top::before{opacity:1}
 @media (prefers-reduced-motion:reduce){.pin-top::before{transition:none}}
+
+.scrolled .light-hdr .tx span{color:#1e2020 !important;transition:color .2s ease}
+.scrolled .light-hdr img.ic{filter:brightness(0);transition:filter .2s ease}
+.scrolled .light-hdr{background:transparent !important;background-color:transparent !important}

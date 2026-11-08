@@ -352,7 +352,12 @@
       else if (k.y + k.h >= root.h - 140 && (BOT_RE.test(k.nm || k.cs || '') || k.cs === 'Button')) moveFixed(el, k, root); });
     rootEl.style.height = PHONE_H + 'px'; rootEl.style.minHeight = PHONE_H + 'px';
   }
-  function markTop(el, k) { el.classList.add('pin-top'); }
+  function markTop(el, k) {
+    el.classList.add('pin-top');
+    // headers drawn with white text (over a dark hero) switch to dark text once the page scrolls under the light gradient
+    const lum = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ''); return m ? (0.299 * m[1] + 0.587 * m[2] + 0.114 * m[3]) : 0; };
+    requestAnimationFrame(() => { const t = [...el.querySelectorAll('.tx span')]; if (t.length && t.every(x => lum(getComputedStyle(x).color) > 200)) el.classList.add('light-hdr'); });
+  }
   function moveFixed(el, k, root, top) {
     if (top) markTop(el, k);
     const layer = $('#fixed'); el.style.position = 'absolute'; el.style.left = k.x + 'px';
