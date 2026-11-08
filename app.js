@@ -271,7 +271,7 @@
     // 7. known entry points by visible text (tiles, cards, CTAs)
     for (const x of path.slice(0, 8)) {
       const ts = x.classList && x.classList.contains('tx') ? [x] : (x.querySelectorAll ? [...x.querySelectorAll('.tx')].slice(0, 6) : []);
-      for (const t of ts) { const k = (t._text || '').trim(); const dest = IDX.links[k] || IDX.links[k.split('\n')[0]]; if (dest && dest !== state.cur) { go(dest); return; } }
+      for (const t of ts) { const k = (t._text || '').trim(); const sl = (IDX.slinks || {})[state.cur] || {}; const dest = sl[k] || IDX.links[k] || IDX.links[k.split('\n')[0]]; if (dest && dest !== state.cur) { go(dest); return; } }
       if (/^Card \/ Workout/.test(x.dataset.cs || '') && IDX.byId['9210:4988']) { go('9210:4988'); return; }
     }
     flashHotspots();
@@ -286,7 +286,7 @@
   function hotspots() {
     const scr = $('#screen'); const out = [];
     scr.querySelectorAll('*').forEach(x => {
-      if (x._rx || x.classList.contains('tg') || BACK_RE.test(x.dataset.nm || '') || /^Tabbar/.test(x.dataset.cs || '') || (x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && !/Disabled/.test(x.dataset.cn || '')) || /^Card \/ Workout/.test(x.dataset.cs || '') || SOFT_RE.test(x.dataset.cs || '') || (x.classList.contains('tx') && IDX.links[(x._text || '').trim()]) || x.tagName === 'INPUT') out.push(x);
+      if (x._rx || x.classList.contains('tg') || BACK_RE.test(x.dataset.nm || '') || /^Tabbar/.test(x.dataset.cs || '') || (x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && !/Disabled/.test(x.dataset.cn || '')) || /^Card \/ Workout/.test(x.dataset.cs || '') || SOFT_RE.test(x.dataset.cs || '') || (x.classList.contains('tx') && (IDX.links[(x._text || '').trim()] || ((IDX.slinks || {})[state.cur] || {})[(x._text || '').trim()])) || x.tagName === 'INPUT') out.push(x);
     });
     return out;
   }
