@@ -131,7 +131,7 @@
     if (n.nm) el.dataset.nm = n.nm;
     if (n.cs) { el.dataset.cs = n.cs; el.dataset.cn = n.cn || ''; }
     if (n.rx) el._rx = n.rx;
-    if (n.inp) decorateInput(el, n);
+    if (n.inp && !n.rx) decorateInput(el, n);
     if (n.alt) setupToggle(el, n, ctx);
     if (n.gate) { el._gate = n.gate; el._gctx = ctx; el._gnode = n; el.classList.add('gated'); }
     if (n.act) el.dataset.act = n.act;
