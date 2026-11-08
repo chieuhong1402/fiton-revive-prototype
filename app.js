@@ -240,7 +240,7 @@
     const scr = $('#screen'); let el = e.target;
     const path = []; while (el && el !== scr) { path.push(el); el = el.parentElement; }
     // 0. explicit actions and disabled (gated) buttons
-    for (const x of path) { if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
+    for (const x of path) { if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'home') { go(IDX.home); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
     // 1. Figma prototype links
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
