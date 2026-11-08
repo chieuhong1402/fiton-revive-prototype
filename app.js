@@ -245,7 +245,7 @@
     const scr = $('#screen'); let el = e.target;
     const path = []; while (el && el !== scr) { path.push(el); el = el.parentElement; }
     // 0. explicit actions and disabled (gated) buttons
-    for (const x of path) { if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'home') { go(IDX.home); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
+    for (const x of path) { if (x.dataset && x.dataset.act === 'none') return; if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'home') { go(IDX.home); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
     // 0b. single-choice pickers (e.g. pain scale) and buttons that route on the picked value
     for (const x of path) if (x.dataset && x.dataset.pk) {
       const grp = [...$('#screen').querySelectorAll('[data-pk]')];
@@ -299,6 +299,7 @@
   function hotspots() {
     const scr = $('#screen'); const out = [];
     scr.querySelectorAll('*').forEach(x => {
+      if (x.dataset.act === 'none' || x.closest('[data-act="none"]')) return;
       if (x._rx || x.classList.contains('tg') || BACK_RE.test(x.dataset.nm || '') || /^Tabbar/.test(x.dataset.cs || '') || (x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && !/Disabled/.test(x.dataset.cn || '')) || /^Card \/ Workout/.test(x.dataset.cs || '') || SOFT_RE.test(x.dataset.cs || '') || (x.classList.contains('tx') && (IDX.links[(x._text || '').trim()] || ((IDX.slinks || {})[state.cur] || {})[(x._text || '').trim()])) || x.tagName === 'INPUT') out.push(x);
     });
     return out;
