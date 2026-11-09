@@ -95,3 +95,8 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 #screen [data-cs="Pain option"].sel{background:#ebfcfa !important;box-shadow:inset 0 0 0 1px #287985 !important}
 #screen [data-cs="Pain option"].sel .tx span{color:#287985 !important}
 #screen [data-cs="Pain option"].unsel{background:#fff !important;box-shadow:inset 0 0 0 1px #e8eaea !important}
+
+/* in-page category tabs */
+[data-cs="Category tab"]{cursor:pointer}
+.cat-on{background:rgba(108,115,127,0.2) !important}.cat-on .tx span{font-weight:700 !important;color:#1e2020 !important}
+.cat-off{background:transparent !important}.cat-off .tx span{font-weight:500 !important;color:#888989 !important}

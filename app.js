@@ -304,6 +304,10 @@
         if (a.u) { window.open(a.u, '_blank'); return; }
       }
     }
+    // 1b. in-page category tabs (Advice: Fitness / Nutrition / …): move the selected pill
+    for (const x of path) if (x.dataset && x.dataset.cs === 'Category tab') {
+      x.parentElement.querySelectorAll('[data-cs="Category tab"]').forEach(t => { t.classList.toggle('cat-on', t === x); t.classList.toggle('cat-off', t !== x); }); return;
+    }
     // 2. tab bar
     for (const x of path) {
       if (/^Tabbar/.test(x.dataset.cs || '') || /^Tab Bar$/i.test(x.dataset.nm || '')) {
@@ -400,7 +404,8 @@
     } else {
       kids.forEach((k, i) => {
         const el = els[i]; if (!el) return;
-        if (k.y < 2 && TOP_RE.test(k.nm || k.cs || '')) moveFixed(el, k, root, true);
+        if (k.pin) moveFixed(el, k, root);
+        else if (k.y < 2 && TOP_RE.test(k.nm || k.cs || '')) moveFixed(el, k, root, true);
         else if (k.y + k.h >= root.h - 2 && (BOT_RE.test(k.nm || k.cs || '') || (/Button/.test(k.nm || '') && k.h < 140))) moveFixed(el, k, root);
       });
     }
