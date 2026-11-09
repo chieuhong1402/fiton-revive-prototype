@@ -260,6 +260,12 @@
     if (!state.tz) return;
     document.querySelectorAll('#screen .tx span, #fixed .tx span').forEach(sp => { if (/Times shown in /.test(sp.textContent)) sp.textContent = sp.textContent.replace(/Times shown in .*? Time/, 'Times shown in ' + state.tz); });
   }
+  // pain scale caption follows the picked face
+  const PAIN_TXT = { 1: '1-Mild pain', 2: '2-Discomforting pain', 3: '3-Moderate pain', 4: '4-Severe pain', 5: '5-Unbelievable pain' };
+  function painCaption(v) {
+    const t = PAIN_TXT[v]; if (!t) return;
+    [...$('#screen').querySelectorAll('.tx')].forEach(el => { if (/^\d-.+pain$/.test((el.textContent || '').trim())) { const sp = el.querySelector('span') || el; sp.textContent = t; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); } });
+  }
   function go(id, push = true) {
     if (id === 'more') { if (push && state.cur) state.hist.push(state.cur); showMore(); return; }
     if (!screenMeta(id)) return;
@@ -286,7 +292,7 @@
     for (const x of path) if (x.dataset && x.dataset.pk) {
       const grp = [...$('#screen').querySelectorAll('[data-pk]')];
       grp.forEach(g => { g.classList.toggle('pk-on', g === x); g.classList.toggle('pk-off', g !== x); });
-      (state.picks = state.picks || {})[state.cur] = x.dataset.pk; return;
+      (state.picks = state.picks || {})[state.cur] = x.dataset.pk; painCaption(x.dataset.pk); return;
     }
     for (const x of path) if (x._rt) { const v = (state.picks || {})[state.cur] || x._rt._d; const d = x._rt[v]; if (d && screenMeta(d)) { go(d); return; } }
     // 1. Figma prototype links
