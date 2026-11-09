@@ -82,3 +82,10 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 /* Checkbox button: match Figma Selected / Not selected variants */
 #screen [data-cs="Checkbox button"].sel,#fixed [data-cs="Checkbox button"].sel{background:#ebfcfa !important;box-shadow:inset 0 0 0 1px #3fbcb5 !important}
 #screen [data-cs="Checkbox button"].unsel,#fixed [data-cs="Checkbox button"].unsel{background:#fff !important;box-shadow:inset 0 0 0 1px #e8eaea !important}
+
+/* overlay bottom sheet */
+.ovl{position:absolute;inset:0;z-index:30}
+.ovl .ovl-scrim{opacity:0;transition:opacity .2s}
+.ovl .ovl-sheet{transform:translateY(100%);transition:transform .22s ease-out}
+.ovl.on .ovl-scrim{opacity:1}.ovl.on .ovl-sheet{transform:none}
+.ovl [data-nm^="Option / "]{cursor:pointer}

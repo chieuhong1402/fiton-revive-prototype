@@ -233,6 +233,32 @@
 
   // --- navigation
   function screenMeta(id) { return IDX.byId[id]; }
+  // bottom sheet shown over the current screen (e.g. time zone picker), taken from the sheet's own Figma frame
+  async function openSheet(sid) {
+    const s = await loadScreen(sid); const root = s.root;
+    const scrim = root.ch.find(c => c.nm === 'Overlay'); const sheet = root.ch.find(c => /^Bottom sheet/.test(c.nm || ''));
+    if (!sheet) { go(sid); return; }
+    const ov = document.createElement('div'); ov.className = 'ovl';
+    const ctx = { al: null, pw: PHONE_W, ph: root.h };
+    if (scrim) { const e = render(Object.assign({}, scrim, { x: 0, y: 0 }), ctx); Object.assign(e.style, { left: '0', top: '0', width: '100%', height: '100%' }); e.classList.add('ovl-scrim'); ov.appendChild(e); }
+    const se = render(sheet, ctx); Object.assign(se.style, { top: 'auto', bottom: '0' }); se.classList.add('ovl-sheet'); ov.appendChild(se);
+    const opts = [...se.querySelectorAll('[data-nm^="Option / "]')];
+    const onBg = (opts.find(o => o.style.backgroundColor) || {}).style?.backgroundColor || '#ebfcfa';
+    const mark = () => opts.forEach(o => { o.style.backgroundColor = o.dataset.nm.slice(9) === (state.tz || 'Pacific Time') ? onBg : 'transparent'; });
+    mark();
+    const close = () => { ov.classList.remove('on'); setTimeout(() => ov.remove(), 220); };
+    ov.addEventListener('click', e => {
+      e.stopPropagation();
+      const o = e.target.closest('[data-nm^="Option / "]');
+      if (o) { state.tz = o.dataset.nm.slice(9); mark(); applyTz(); setTimeout(close, 180); return; }
+      if (e.target.closest('.ovl-scrim') || e.target.closest('[data-nm="Close"]')) close();
+    });
+    $('#fixed').appendChild(ov); requestAnimationFrame(() => ov.classList.add('on'));
+  }
+  function applyTz() {
+    if (!state.tz) return;
+    document.querySelectorAll('#screen .tx span, #fixed .tx span').forEach(sp => { if (/Times shown in /.test(sp.textContent)) sp.textContent = sp.textContent.replace(/Times shown in .*? Time/, 'Times shown in ' + state.tz); });
+  }
   function go(id, push = true) {
     if (id === 'more') { if (push && state.cur) state.hist.push(state.cur); showMore(); return; }
     if (!screenMeta(id)) return;
@@ -266,6 +292,7 @@
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
         if (a.b || a.cl) { back(); return; }
+        if (a.ov) { openSheet(a.d); return; }
         if (a.d && screenMeta(a.d)) { if (a.t) (state.titles = state.titles || {})[a.d] = a.t; go(a.d); return; }
         if (a.u) { window.open(a.u, '_blank'); return; }
       }
@@ -340,7 +367,7 @@
     if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
-    gateCta();
+    gateCta(); applyTz();
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
