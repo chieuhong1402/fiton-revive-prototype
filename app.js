@@ -14,7 +14,7 @@
     return `'${f}', 'Inter', sans-serif`;
   };
   const DATA = {}; const packLoads = {};
-  const asset = id => !id ? null : IDX.packs ? (DATA[id] || null) : (IDX.assets[id] ? `a/${id}.${IDX.assets[id]}` : null);
+  const asset = id => !id ? null : IDX.packs ? (DATA[id] || null) : (IDX.assets[id] ? `a/${id}.${IDX.assets[id]}?v=${IDX.v || ''}` : null);
   async function loadPack(k) { if (!packLoads[k]) packLoads[k] = fetch(IDX.packs[k]).then(r => r.json()).then(j => { Object.assign(DATA, j.assets); for (const id in j.screens) cache.set(id, { id, root: j.screens[id] }); }); return packLoads[k]; }
   const JA = { MIN: 'flex-start', CENTER: 'center', MAX: 'flex-end', SPACE_BETWEEN: 'space-between', BASELINE: 'baseline' };
   const BACK_RE = /^(Icon_left|Back|Close|Close Button|Icon\/x-close|arrow-narrow-left|Icons\/Close back|chevron-left|x-close)$/i;
@@ -364,7 +364,7 @@
   async function loadScreen(id) {
     if (cache.has(id)) return cache.get(id);
     if (IDX.packs) { $('#screen').classList.add('loading'); await loadPack('common'); await loadPack(IDX.byId[id].page); $('#screen').classList.remove('loading'); return cache.get(id); }
-    const r = await fetch('s/' + id.replace(':', '-') + '.json'); const j = await r.json(); cache.set(id, j); return j;
+    const r = await fetch('s/' + id.replace(':', '-') + '.json?v=' + (IDX.v || '')); const j = await r.json(); cache.set(id, j); return j;
   }
   async function show(id) {
     const meta = screenMeta(id); if (!meta) { go(IDX.home, false); return; }
@@ -517,7 +517,7 @@
   }
 
   async function init() {
-    IDX = await (await fetch('index.json')).json();
+    IDX = await (await fetch('index.json', { cache: 'no-cache' })).json();
     IDX.byId = {}; for (const s of IDX.screens) IDX.byId[s.id] = s;
     buildList(); fit(); window.addEventListener('resize', fit);
     $('#q').addEventListener('input', buildList);
