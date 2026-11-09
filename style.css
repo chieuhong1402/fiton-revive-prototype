@@ -75,3 +75,7 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 
 #screen .pk-on{background:#d3f2f0 !important;box-shadow:inset 0 0 0 2px #3fbcb5 !important}
 #screen .pk-off{background:#f3f5f5 !important;box-shadow:inset 0 0 0 1px #f3f5f5 !important}
+
+/* disabled primary CTA (multi-select gate) */
+.dis{background:#e8eaea!important;cursor:default}
+.dis *{color:#a3a5a5!important}

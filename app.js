@@ -28,6 +28,14 @@
     const turnOn = !isOn(el);
     if (turnOn && !multi) { let g = el.parentElement; for (let i = 0; i < 4 && g; i++, g = g.parentElement) { const peers = [...g.querySelectorAll('[data-cs]')].filter(p => p !== el && p.dataset.cs === el.dataset.cs); if (peers.length) { peers.forEach(p => { if (isOn(p)) { p.classList.remove('sel'); p.classList.add('unsel'); } }); break; } } }
     el.classList.toggle('sel', turnOn); el.classList.toggle('unsel', !turnOn);
+    gateCta();
+  }
+  // multi-select screens whose primary CTA stays disabled until something is picked
+  const GATE = new Set(['6615:1113']);
+  function gateCta() {
+    if (!GATE.has(state.cur)) return;
+    const any = [...document.querySelectorAll('#screen [data-cs="Checkbox button"]')].some(isOn);
+    document.querySelectorAll('#screen [data-cs="Button"], #fixed [data-cs="Button"]').forEach(b => { if (/Type=Primary/.test(b.dataset.cn || '')) b.classList.toggle('dis', !any); });
   }
 
   function boxShadow(n) {
@@ -278,6 +286,7 @@
     // 5. primary CTA => next screen in flow
     for (const x of path) {
       const cn = x.dataset.cn || '';
+      if (x.dataset.cs === 'Button' && x.classList.contains('dis')) return;
       if (x.dataset.cs === 'Button' && /Type=Primary/.test(cn) && !/Disabled/.test(cn)) { const nx = nextInFlow(); if (nx) { go(nx); return; } toast('End of this flow'); return; }
     }
     // 6. row containing a single toggle (tap anywhere on the row)
@@ -331,6 +340,7 @@
     if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
+    gateCta();
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
