@@ -89,3 +89,9 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 .ovl .ovl-sheet{transform:translateY(100%);transition:transform .22s ease-out}
 .ovl.on .ovl-scrim{opacity:1}.ovl.on .ovl-sheet{transform:none}
 .ovl [data-nm^="Option / "]{cursor:pointer}
+
+/* PT pain area rows: multi-select */
+#screen [data-cs="Pain option"]{cursor:pointer}
+#screen [data-cs="Pain option"].sel{background:#ebfcfa !important;box-shadow:inset 0 0 0 1px #287985 !important}
+#screen [data-cs="Pain option"].sel .tx span{color:#287985 !important}
+#screen [data-cs="Pain option"].unsel{background:#fff !important;box-shadow:inset 0 0 0 1px #e8eaea !important}

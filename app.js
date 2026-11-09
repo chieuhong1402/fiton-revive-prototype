@@ -21,20 +21,21 @@
   const TOP_RE = /^(TopBar|Header|Top bar|Topbar|Status|UI Bars|Nav|Navigation)/i;
   const BOT_RE = /(Tabbar|Tab Bar|Footer|CTA|Home Indicator|Home indicator|Safari - Bottom|Bottom bar|Bottom)/i;
   const EXCL_RE = /radio|tab|segment/i;
-  const SOFT_RE = /^(Checkbox button|Date chip|Chip|_Tab Bar Button - iPad - Text)$/;
+  const SOFT_RE = /^(Checkbox button|Pain option|Date chip|Chip|_Tab Bar Button - iPad - Text)$/;
   const isOn = el => el.classList.contains('sel') || (!el.classList.contains('unsel') && /(^|[ ,=])(Selected|Active|True)(,|$)|State=Selected|Selected=True|Selected=Yes/.test(el.dataset.cn || '') && !/Not selected/i.test(el.dataset.cn || ''));
   function softToggle(el) {
-    const multi = /all that apply|select all/i.test($('#screen').textContent);
+    const multi = MULTI.has(state.cur) || /all that apply|select all/i.test($('#screen').textContent);
     const turnOn = !isOn(el);
     if (turnOn && !multi) { let g = el.parentElement; for (let i = 0; i < 4 && g; i++, g = g.parentElement) { const peers = [...g.querySelectorAll('[data-cs]')].filter(p => p !== el && p.dataset.cs === el.dataset.cs); if (peers.length) { peers.forEach(p => { if (isOn(p)) { p.classList.remove('sel'); p.classList.add('unsel'); } }); break; } } }
     el.classList.toggle('sel', turnOn); el.classList.toggle('unsel', !turnOn);
     gateCta();
   }
   // multi-select screens whose primary CTA stays disabled until something is picked
-  const GATE = new Set(['6615:1113']);
+  const GATE = new Set(['6615:1113', '7147:1811']);
+  const MULTI = new Set(['7147:1811']);
   function gateCta() {
     if (!GATE.has(state.cur)) return;
-    const any = [...document.querySelectorAll('#screen [data-cs="Checkbox button"]')].some(isOn);
+    const any = [...document.querySelectorAll('#screen [data-cs="Checkbox button"], #screen [data-cs="Pain option"]')].some(isOn);
     document.querySelectorAll('#screen [data-cs="Button"], #fixed [data-cs="Button"]').forEach(b => { if (/Type=Primary/.test(b.dataset.cn || '')) b.classList.toggle('dis', !any); });
   }
 
