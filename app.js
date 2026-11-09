@@ -370,6 +370,8 @@
         toast(label ? `"${label}" isn't linked` : 'Tab not linked'); return;
       }
     }
+    // strict screens (Meals tab): only explicit links, tab bar and back
+    if (state.strict) { for (const x of path) if (BACK_RE.test(x.dataset.nm || '') || BACK_RE.test(x.dataset.cs || '')) { back(); return; } flashHotspots(); return; }
     // 3. toggles
     for (const x of path) if (x.classList.contains('tg')) { activate(x); return; }
     for (const x of path) if (SOFT_RE.test(x.dataset.cs || '')) { softToggle(x); return; }
@@ -422,7 +424,7 @@
   async function show(id) {
     const meta = screenMeta(id); if (!meta) { go(IDX.home, false); return; }
     state.cur = id; const s = await loadScreen(id); if (state.cur !== id) return;
-    const root = s.root; const H = root.h;
+    const root = s.root; const H = root.h; state.strict = !!root.strict;
     const scr = $('#screen'); scr.innerHTML = ''; scr.scrollTop = 0; $('#phone').classList.remove('scrolled'); $('#fixed').innerHTML = '';
     const rootEl = render(Object.assign({}, root, { abs: 1, x: 0, y: 0 }), { al: null, pw: PHONE_W, ph: H });
     rootEl.style.position = 'relative'; rootEl.style.left = rootEl.style.top = '0';
