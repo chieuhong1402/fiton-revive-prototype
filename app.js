@@ -299,6 +299,11 @@
       if (state.pharmJustAdded) { state.pharmJustAdded = 0; setTimeout(() => { const n = row.querySelector('.ph-new'); if (n) n.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 150); }
     }
   }
+  // trainer profile shows whichever trainer / celebrity was tapped
+  function trainerName(nm) {
+    const set = (id, v) => { const el = $('#screen').querySelector(`[data-id="${id}"]`); if (!el) return; const sp = el.querySelector('span') || el; sp.textContent = v; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); };
+    set('9057:4927', nm); set('9057:5026', nm.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  }
   function go(id, push = true) {
     if (id === 'more') { if (push && state.cur) state.hist.push(state.cur); showMore(); return; }
     if (!screenMeta(id)) return;
@@ -348,6 +353,7 @@
         if (a.b || a.cl) { back(); return; }
         if (a.ov) { openSheet(a.d); return; }
         if (a.set) state[a.set] = 1;
+        if (a.tn) state.trainer = a.tn;
         if (a.d && screenMeta(a.d)) { if (a.t) (state.titles = state.titles || {})[a.d] = a.t; go(a.d); return; }
         if (a.u) { window.open(a.u, '_blank'); return; }
       }
@@ -427,6 +433,7 @@
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
     gateCta(); applyTz(); pharmScreen(id);
+    if (id === '9057:4910' && state.trainer) trainerName(state.trainer);
     if (MODAL.has(id)) { scr.classList.remove('modal-in'); void scr.offsetWidth; scr.classList.add('modal-in'); } else scr.classList.remove('modal-in');
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
