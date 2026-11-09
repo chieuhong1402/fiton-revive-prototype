@@ -100,3 +100,7 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 [data-cs="Category tab"]{cursor:pointer}
 .cat-on{background:rgba(108,115,127,0.2) !important}.cat-on .tx span{font-weight:700 !important;color:#1e2020 !important}
 .cat-off{background:transparent !important}.cat-off .tx span{font-weight:500 !important;color:#888989 !important}
+
+/* modal screens slide up */
+@keyframes modalIn{from{transform:translateY(100%)}to{transform:none}}
+#screen.modal-in{animation:modalIn .32s cubic-bezier(.2,.8,.2,1)}

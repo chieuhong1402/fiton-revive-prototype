@@ -33,6 +33,7 @@
   // multi-select screens whose primary CTA stays disabled until something is picked
   const GATE = new Set(['6615:1113', '7147:1811']);
   const MULTI = new Set(['7147:1811']);
+  const MODAL = new Set(['6364:33317', '8089:73749']);  // screens presented as a modal (slide up)
   function gateCta() {
     if (!GATE.has(state.cur)) return;
     const any = [...document.querySelectorAll('#screen [data-cs="Checkbox button"], #screen [data-cs="Pain option"]')].some(isOn);
@@ -379,6 +380,7 @@
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
     gateCta(); applyTz();
+    if (MODAL.has(id)) { scr.classList.remove('modal-in'); void scr.offsetWidth; scr.classList.add('modal-in'); } else scr.classList.remove('modal-in');
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
     const flow = IDX.flows[meta.flow]; const i = flow.indexOf(id); $('#pos').textContent = `${i + 1} / ${flow.length}`;
