@@ -28,11 +28,14 @@
     const turnOn = !isOn(el);
     if (turnOn && !multi) { let g = el.parentElement; for (let i = 0; i < 4 && g; i++, g = g.parentElement) { const peers = [...g.querySelectorAll('[data-cs]')].filter(p => p !== el && p.dataset.cs === el.dataset.cs); if (peers.length) { peers.forEach(p => { if (isOn(p)) { p.classList.remove('sel'); p.classList.add('unsel'); } }); break; } } }
     el.classList.toggle('sel', turnOn); el.classList.toggle('unsel', !turnOn);
+    const rv = REVEAL[el.dataset.id]; if (rv && turnOn) { const t = $('#screen').querySelector(`[data-id="${rv[0]}"]`); if (t) t.style.display = rv[1] ? '' : 'none'; }
     gateCta();
   }
   // multi-select screens whose primary CTA stays disabled until something is picked
   const GATE = new Set(['6615:1113', '7147:1811']);
   const MULTI = new Set(['7147:1811']);
+  // Yes/No answers that show or hide the field below them
+  const REVEAL = { '6797:17330': ['6797:17332', 0], '6797:17331': ['6797:17332', 1], '6797:17337': ['6797:17339', 0], '6797:17338': ['6797:17339', 1] };
   const MODAL = new Set(['6364:33317', '8089:73749']);  // screens presented as a modal (slide up)
   function gateCta() {
     if (!GATE.has(state.cur)) return;
