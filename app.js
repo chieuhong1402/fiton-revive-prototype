@@ -273,7 +273,7 @@
     [...$('#screen').querySelectorAll('.tx')].forEach(el => { if (/^\d-.+pain$/.test((el.textContent || '').trim())) { const sp = el.querySelector('span') || el; sp.textContent = t; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); } });
   }
   // --- pharmacy add flow -------------------------------------------------------
-  const PH = { home: '6364:32916', search: '7615:15263', sel: '7615:15290', card: '7552:45341' };
+  const PH = { home: '6364:32916', search: '7615:15263', sel: '7615:15290', card: '7552:45341', change: '6797:17255', transfer: '6797:17308' };
   function pharmInfo(row) {
     const tx = [...row.querySelectorAll('.tx')].map(t => (t.textContent || '').trim()).filter(Boolean);
     return { t: tx[0] || '', a: tx[1] || '' };
@@ -289,6 +289,11 @@
   }
   function pharmScreen(id) {
     if (id === PH.sel) { if (state.pharmPick) selectPharm(); }
+    if (id === PH.change && state.transferPharm) { state.pharmPick = state.transferPharm; selectPharm(); }
+    if (id === PH.transfer && state.transferPharm) {
+      const set = (sid, v) => { const el = $('#screen').querySelector(`[data-id="${sid}"]`); if (!el || !v) return; const sp = el.querySelector('span') || el; sp.textContent = v; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); };
+      set('I7552:45121;7546:1768', state.transferPharm.t); set('I7552:45121;7546:1769', state.transferPharm.a);
+    }
     if ((id === PH.sel || id === PH.search) && state.pharmAdd) {
       document.querySelectorAll('#screen [data-cs="Button"], #fixed [data-cs="Button"]').forEach(b => { if (!/Type=Primary/.test(b.dataset.cn || '')) return; b.querySelectorAll('.tx span').forEach(sp => { if (sp.textContent.trim() === 'Next') sp.textContent = 'Add'; }); });
     }
@@ -341,9 +346,11 @@
     // pharmacy picker: remember the tapped pharmacy; on the Selected screen rows act as radio buttons
     for (const x of path) if (x.dataset && x.dataset.cs === 'Card / Pharmacy row') {
       state.pharmPick = pharmInfo(x);
-      if (state.cur === PH.sel) { selectPharm(); return; }
+      if (state.cur === PH.sel || state.cur === PH.change) { selectPharm(); return; }
       break;
     }
+    // Change pharmacy (from Transfer it for me): Update returns with the picked pharmacy
+    if (state.cur === PH.change) for (const x of path) if (x.dataset && x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '')) { if (state.pharmPick) state.transferPharm = state.pharmPick; back(); return; }
     // "Add pharmacy" mode (entered from My Pharmacy → Add): primary button says Add and returns home with the new pharmacy
     if (state.pharmAdd && (state.cur === PH.sel || state.cur === PH.search)) {
       for (const x of path) {
