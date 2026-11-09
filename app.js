@@ -238,7 +238,7 @@
   // bottom sheet shown over the current screen (e.g. time zone picker), taken from the sheet's own Figma frame
   async function openSheet(sid) {
     const s = await loadScreen(sid); const root = s.root;
-    const scrim = root.ch.find(c => c.nm === 'Overlay' || (c.nm === 'Rectangle' && c.h >= 800)); const sheet = root.ch.find(c => /^(Bottom sheet|Filter sheet)/.test(c.nm || ''));
+    const scrim = root.ch.find(c => c.nm === 'Overlay' || c.nm === 'Scrim' || (c.nm === 'Rectangle' && c.h >= 800)); const sheet = root.ch.find(c => /^(Bottom sheet|Filter sheet)/i.test(c.nm || ''));
     if (!sheet) { go(sid); return; }
     const ov = document.createElement('div'); ov.className = 'ovl';
     const ctx = { al: null, pw: PHONE_W, ph: root.h };
@@ -255,7 +255,7 @@
       if (o) { state.tz = o.dataset.nm.slice(9); mark(); applyTz(); setTimeout(close, 180); return; }
       const tg = e.target.closest('.tg'); if (tg) { activate(tg); return; }
       const btn = e.target.closest('[data-cs="Button"]'); if (btn && /Type=Primary/.test(btn.dataset.cn || '')) { close(); return; }
-      if (e.target.closest('.ovl-scrim') || e.target.closest('[data-nm="Close"]') || e.target.closest('[data-nm="Icon/x-close"]')) close();
+      if (e.target.closest('.ovl-scrim') || e.target.closest('[data-nm="Close"]') || e.target.closest('[data-nm="Icon/x-close"]') || e.target.closest('[data-nm="Icon_right"]')) close();
     });
     $('#fixed').appendChild(ov); requestAnimationFrame(() => ov.classList.add('on'));
   }
