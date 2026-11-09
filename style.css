@@ -104,3 +104,9 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 /* modal screens slide up */
 @keyframes modalIn{from{transform:translateY(100%)}to{transform:none}}
 #screen.modal-in{animation:modalIn .32s cubic-bezier(.2,.8,.2,1)}
+
+/* pharmacy picker rows (radio) */
+#screen .pr-on{background:#ebfcfa !important;box-shadow:inset 0 0 0 1px #3fbcb5 !important}
+#screen .pr-off{background:#f3f5f5 !important;box-shadow:none !important}
+@keyframes phNew{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+#screen .ph-new{animation:phNew .4s ease-out}

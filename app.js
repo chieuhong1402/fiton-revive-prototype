@@ -267,6 +267,38 @@
     const t = PAIN_TXT[v]; if (!t) return;
     [...$('#screen').querySelectorAll('.tx')].forEach(el => { if (/^\d-.+pain$/.test((el.textContent || '').trim())) { const sp = el.querySelector('span') || el; sp.textContent = t; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); } });
   }
+  // --- pharmacy add flow -------------------------------------------------------
+  const PH = { home: '6364:32916', search: '7615:15263', sel: '7615:15290', card: '7552:45341' };
+  function pharmInfo(row) {
+    const tx = [...row.querySelectorAll('.tx')].map(t => (t.textContent || '').trim()).filter(Boolean);
+    return { t: tx[0] || '', a: tx[1] || '' };
+  }
+  function selectPharm() {
+    const rows = [...$('#screen').querySelectorAll('[data-cs="Card / Pharmacy row"]')]; if (!rows.length) return;
+    const want = (state.pharmPick && state.pharmPick.t) || '';
+    let sel = rows.find(r => pharmInfo(r).t === want) || rows[0];
+    rows.forEach(r => {
+      const on = r === sel; r.classList.toggle('pr-on', on); r.classList.toggle('pr-off', !on);
+      const cb = r.querySelector('.tg'); if (cb && (cb.dataset.tg === '1') !== on) flipToggle(cb);
+    });
+  }
+  function pharmScreen(id) {
+    if (id === PH.sel) { if (state.pharmPick) selectPharm(); }
+    if ((id === PH.sel || id === PH.search) && state.pharmAdd) {
+      document.querySelectorAll('#screen [data-cs="Button"], #fixed [data-cs="Button"]').forEach(b => { if (!/Type=Primary/.test(b.dataset.cn || '')) return; b.querySelectorAll('.tx span').forEach(sp => { if (sp.textContent.trim() === 'Next') sp.textContent = 'Add'; }); });
+    }
+    if (id === PH.home && state.pharmAdded && state.pharmAdded.length) {
+      const tpl = $('#screen').querySelector(`[data-id="${PH.card}"]`); if (!tpl) return;
+      state.pharmAdded.forEach(p => {
+        const c = tpl.cloneNode(true); c.classList.add('ph-new');
+        const tx = [...c.querySelectorAll('.tx')]; const set = (el, v) => { if (!el || !v) return; const sp = el.querySelector('span') || el; sp.textContent = v; [...el.querySelectorAll('span')].slice(1).forEach(x => x.remove()); };
+        set(tx[0], p.t); set(tx[1], p.a);
+        tpl.parentElement.insertBefore(c, tpl);
+      });
+      const row = tpl.parentElement; row.scrollLeft = 0;
+      if (state.pharmJustAdded) { state.pharmJustAdded = 0; setTimeout(() => { const n = row.querySelector('.ph-new'); if (n) n.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 150); }
+    }
+  }
   function go(id, push = true) {
     if (id === 'more') { if (push && state.cur) state.hist.push(state.cur); showMore(); return; }
     if (!screenMeta(id)) return;
@@ -296,11 +328,26 @@
       (state.picks = state.picks || {})[state.cur] = x.dataset.pk; painCaption(x.dataset.pk); return;
     }
     for (const x of path) if (x._rt) { const v = (state.picks || {})[state.cur] || x._rt._d; const d = x._rt[v]; if (d && screenMeta(d)) { go(d); return; } }
+    // pharmacy picker: remember the tapped pharmacy; on the Selected screen rows act as radio buttons
+    for (const x of path) if (x.dataset && x.dataset.cs === 'Card / Pharmacy row') {
+      state.pharmPick = pharmInfo(x);
+      if (state.cur === PH.sel) { selectPharm(); return; }
+      break;
+    }
+    // "Add pharmacy" mode (entered from My Pharmacy → Add): primary button says Add and returns home with the new pharmacy
+    if (state.pharmAdd && (state.cur === PH.sel || state.cur === PH.search)) {
+      for (const x of path) {
+        if (x.dataset && x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && state.cur === PH.sel) {
+          (state.pharmAdded = state.pharmAdded || []).push(state.pharmPick || { t: 'CVS Pharmacy', a: '' }); state.pharmAdd = 0; state.pharmJustAdded = 1; go(PH.home); return; }
+        if (x.dataset && x.dataset.nm === 'Close') { state.pharmAdd = 0; go(PH.home); return; }
+      }
+    }
     // 1. Figma prototype links
     for (const x of path) if (x._rx) {
       for (const a of x._rx) {
         if (a.b || a.cl) { back(); return; }
         if (a.ov) { openSheet(a.d); return; }
+        if (a.set) state[a.set] = 1;
         if (a.d && screenMeta(a.d)) { if (a.t) (state.titles = state.titles || {})[a.d] = a.t; go(a.d); return; }
         if (a.u) { window.open(a.u, '_blank'); return; }
       }
@@ -379,7 +426,7 @@
     if (state.titles && state.titles[id]) retitle(rootEl, state.titles[id]);
     if (root.fit && !/static/.test(location.search)) { fitScreen(rootEl, root); }
     else if (H > PHONE_H + 4 && !/static/.test(location.search)) { pinBars(rootEl, root); padBottom(rootEl, id); document.fonts.ready.then(() => padBottom(rootEl, id)); }
-    gateCta(); applyTz();
+    gateCta(); applyTz(); pharmScreen(id);
     if (MODAL.has(id)) { scr.classList.remove('modal-in'); void scr.offsetWidth; scr.classList.add('modal-in'); } else scr.classList.remove('modal-in');
     bleedRight();
     $('#title').textContent = meta.name; $('#crumb').textContent = meta.page + (meta.sec ? ' › ' + meta.sec : '');
