@@ -242,6 +242,14 @@
   async function openSheet(sid) {
     const s = await loadScreen(sid); const root = s.root;
     const scrim = root.ch.find(c => c.nm === 'Overlay' || c.nm === 'Scrim' || (c.nm === 'Rectangle' && c.h >= 800)); const sheet = root.ch.find(c => /^(Bottom sheet|Filter sheet)/i.test(c.nm || ''));
+    const modal = scrim && (scrim.ch || []).find(c => /^Modal/i.test(c.nm || ''));
+    if (modal) {
+      const ov = document.createElement('div'); ov.className = 'ovl ovl-modal';
+      const e = render(Object.assign({}, scrim, { x: 0, y: 0 }), { al: null, pw: PHONE_W, ph: PHONE_H }); Object.assign(e.style, { left: '0', top: '0', width: '100%', height: '100%' }); ov.appendChild(e);
+      const close = () => { ov.classList.remove('on'); setTimeout(() => ov.remove(), 220); };
+      ov.addEventListener('click', ev => { ev.stopPropagation(); if (ev.target === e || ev.target === ov || ev.target.closest('[data-cs="Button"]') || ev.target.closest('[data-nm="Close"]')) close(); });
+      $('#fixed').appendChild(ov); requestAnimationFrame(() => ov.classList.add('on')); return;
+    }
     if (!sheet) { go(sid); return; }
     const ov = document.createElement('div'); ov.className = 'ovl';
     const ctx = { al: null, pw: PHONE_W, ph: root.h };
