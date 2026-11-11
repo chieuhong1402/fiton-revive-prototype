@@ -148,7 +148,6 @@
     if (n.alt) setupToggle(el, n, ctx);
     if (n.gate) { el._gate = n.gate; el._gctx = ctx; el._gnode = n; el.classList.add('gated'); }
     if (n.act) el.dataset.act = n.act;
-    if (n.dlg) el.dataset.dlg = n.dlg;
     if (n.pk) { el.dataset.pk = n.pk; el.style.cursor = 'pointer'; }
     if (n.rt) el._rt = n.rt;
     return el;
@@ -263,22 +262,6 @@
     });
     $('#fixed').appendChild(ov); requestAnimationFrame(() => ov.classList.add('on'));
   }
-  // centered confirmation dialogs (not in Figma as screens)
-  const DIALOGS = {
-    earlyRefill: { title: 'Request an early refill?', body: 'This prescription isn\u2019t due for a refill yet. We\u2019ll send your request to the pharmacy, and they may wait until it\u2019s due to fill it.', ok: 'Request Refill', cancel: 'Cancel', done: 'Refill request sent' }
-  };
-  function openDialog(key) {
-    const d = DIALOGS[key]; if (!d) return;
-    const ov = document.createElement('div'); ov.className = 'dlg';
-    ov.innerHTML = `<div class="dlg-scrim"></div><div class="dlg-card" role="dialog" aria-modal="true"><h3>${d.title}</h3><p>${d.body}</p><button class="dlg-ok">${d.ok}</button><button class="dlg-cancel">${d.cancel}</button></div>`;
-    const close = () => { ov.classList.remove('on'); setTimeout(() => ov.remove(), 200); };
-    ov.addEventListener('click', e => {
-      e.stopPropagation();
-      if (e.target.closest('.dlg-ok')) { close(); if (d.done) toast(d.done); return; }
-      if (e.target.closest('.dlg-cancel') || e.target.classList.contains('dlg-scrim')) close();
-    });
-    $('#fixed').appendChild(ov); requestAnimationFrame(() => ov.classList.add('on'));
-  }
   function applyTz() {
     if (!state.tz) return;
     document.querySelectorAll('#screen .tx span, #fixed .tx span').forEach(sp => { if (/Times shown in /.test(sp.textContent)) sp.textContent = sp.textContent.replace(/Times shown in .*? Time/, 'Times shown in ' + state.tz); });
@@ -352,7 +335,6 @@
     const scr = $('#screen'); let el = e.target;
     const path = []; while (el && el !== scr) { path.push(el); el = el.parentElement; }
     // 0. explicit actions and disabled (gated) buttons
-    for (const x of path) if (x.dataset && x.dataset.dlg) { openDialog(x.dataset.dlg); return; }
     for (const x of path) { if (x.dataset && x.dataset.act === 'none') return; if (x.dataset && x.dataset.act === 'back') { back(); return; } if (x.dataset && x.dataset.act === 'close') { exitFlow(); return; } if (x.dataset && x.dataset.act === 'home') { go(IDX.home); return; } if (x.dataset && x.dataset.act === 'finish') { toast('Assessment complete'); exitFlow(); return; } if (x.classList && x.classList.contains('gated')) { const b = x; b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); toast('Select an answer to continue'); return; } }
     // 0b. single-choice pickers (e.g. pain scale) and buttons that route on the picked value
     for (const x of path) if (x.dataset && x.dataset.pk) {
@@ -434,7 +416,7 @@
     const scr = $('#screen'); const out = [];
     scr.querySelectorAll('*').forEach(x => {
       if (x.dataset.act === 'none' || x.closest('[data-act="none"]')) return;
-      if (x._rx || x.dataset.dlg || x.classList.contains('tg') || BACK_RE.test(x.dataset.nm || '') || /^Tabbar/.test(x.dataset.cs || '') || (x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && !/Disabled/.test(x.dataset.cn || '')) || /^Card \/ Workout/.test(x.dataset.cs || '') || SOFT_RE.test(x.dataset.cs || '') || (x.classList.contains('tx') && (IDX.links[(x._text || '').trim()] || ((IDX.slinks || {})[state.cur] || {})[(x._text || '').trim()])) || x.tagName === 'INPUT') out.push(x);
+      if (x._rx || x.classList.contains('tg') || BACK_RE.test(x.dataset.nm || '') || /^Tabbar/.test(x.dataset.cs || '') || (x.dataset.cs === 'Button' && /Type=Primary/.test(x.dataset.cn || '') && !/Disabled/.test(x.dataset.cn || '')) || /^Card \/ Workout/.test(x.dataset.cs || '') || SOFT_RE.test(x.dataset.cs || '') || (x.classList.contains('tx') && (IDX.links[(x._text || '').trim()] || ((IDX.slinks || {})[state.cur] || {})[(x._text || '').trim()])) || x.tagName === 'INPUT') out.push(x);
     });
     return out;
   }

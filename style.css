@@ -110,11 +110,3 @@ img.ic{display:block;user-select:none;-webkit-user-drag:none}
 #screen .pr-off{background:#f3f5f5 !important;box-shadow:none !important}
 @keyframes phNew{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
 #screen .ph-new{animation:phNew .4s ease-out}
-.dlg{position:absolute;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:0 24px}
-.dlg-scrim{position:absolute;inset:0;background:rgba(16,45,53,.48);opacity:0;transition:opacity .2s}
-.dlg-card{position:relative;width:100%;background:#fff;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box;opacity:0;transform:scale(.94);transition:opacity .2s,transform .2s}
-.dlg.on .dlg-scrim{opacity:1}.dlg.on .dlg-card{opacity:1;transform:none}
-.dlg-card h3{margin:0;font:700 20px/28px Poppins,sans-serif;color:#1e2020}
-.dlg-card p{margin:0 0 12px;font:400 14px/20px Inter,'Helvetica Neue',Arial,sans-serif;color:#4f5757}
-.dlg-card button{height:48px;border:0;border-radius:24px;font:700 14px/20px Inter,'Helvetica Neue',Arial,sans-serif;cursor:pointer}
-.dlg-ok{background:#287985;color:#fff}.dlg-cancel{background:#deeff4;color:#102d35}
